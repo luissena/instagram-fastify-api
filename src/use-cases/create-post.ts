@@ -1,10 +1,14 @@
 import { PostsRepository } from "@/repositories/posts-repository"
+import { uploadS3 } from "@/utils/aws/upload-s3"
 import { Post } from "@prisma/client"
 import { ContentRequiredError } from "./errors/content-required-error"
 
 interface CreatePostUseCaseRequest {
   userId: string
-  content: string
+  contentFile: {
+    filetype: string
+    data: any // FIX Types
+  }
   description: string
 }
 
@@ -17,15 +21,21 @@ export class CreatePostUseCase {
 
   async execute({
     userId,
-    content,
+    contentFile,
     description,
   }: CreatePostUseCaseRequest): Promise<CreatePostUseCaseResponse> {
-    if (!content) {
+    if (!contentFile) {
       throw new ContentRequiredError()
     }
 
+    // TODO Validation fails
+    const fileUploadedURL = await uploadS3(
+      contentFile.data,
+      contentFile.filetype
+    )
+
     const post = await this.postsRepository.create({
-      content,
+      content: fileUploadedURL as string, // TODO Fix types
       description,
       authorId: userId,
     })

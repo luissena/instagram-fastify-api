@@ -1,24 +1,33 @@
 import { makeCreatePostsUseCase } from "@/use-cases/factories/make-create-post-use-case"
 import { FastifyReply, FastifyRequest } from "fastify"
-import { z } from "zod"
 
 export async function createPost(request: FastifyRequest, reply: FastifyReply) {
-  const createPostBodySchema = z.object({
-    // TODO validar para S3
-    content: z.string().min(1).max(255),
-    description: z.string().min(1).max(255),
-  })
+  const data = request.parts()
 
-  const { content, description } = createPostBodySchema.parse(request.body)
+  let contentFile: any // TODO Fix types
+  let description: any // TODO Fix types
+
+  // TODO Fix validation
+  for await (const part of data) {
+    if (part.type === "file") {
+      contentFile = {
+        filetype: part.mimetype,
+        data: await part.toBuffer(),
+      }
+    } else {
+      if (part.fieldname === "description") {
+        description = part.value
+      }
+    }
+  }
 
   const createPosts = makeCreatePostsUseCase()
 
   const { post } = await createPosts.execute({
-    content,
+    contentFile,
     description,
     userId: request.user.sub,
   })
-
   return reply.status(201).send({
     post,
   })

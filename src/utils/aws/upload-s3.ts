@@ -22,7 +22,7 @@ export async function uploadS3(file: any, fileType: any) {
   try {
     await s3.send(command)
     const fileUploadedURL = `https://${env.AWS_BUCKET}.s3.amazonaws.com/${command.input.Key}`
-    return { fileUploadedURL }
+    return fileUploadedURL
   } catch (err) {
     console.error(err)
   }
