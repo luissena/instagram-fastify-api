@@ -22,5 +22,5 @@ Instagram style app.
 
 - [x] A senha do usuário precisa estar criptografada;
 - [x] Os dados da aplicação precisam estar persistidos em um banco PostgreSQL;
-- [ ] As imagens precisam ser salvas em um bucket do AWS S3
+- [x] As imagens precisam ser salvas em um bucket do AWS S3
 - [x] O usuário deve ser identificado por um JWT (JSON Web Token);
